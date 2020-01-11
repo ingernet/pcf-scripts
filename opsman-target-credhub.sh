@@ -1,5 +1,9 @@
 #!/bin/bash
 
+# TODO check for dependencies - jq, uaac, bosh
+# TODO mayyyybe check for /etc/hosts earlier?
+# TODO add credhub login
+
 export OPSMAN_TARGET=localhost
 export OPSMAN_ADMIN=opsman_admin
 
@@ -23,9 +27,8 @@ IFS=': ' && read -a TMP_UAAC_TOKEN <<< "$(uaac context ${OPSMAN_ADMIN} | grep ac
 #       we used to have to do because for some reason cf-uaac authors chose not to output in json
 
 
-##### B. set ENV vars with ops man api query ops manager api token for bosh_commandline_credentials #####
-# bosh_commandline_credentials
-# This sets: BOSH_ENVIRONMENT, BOSH_CLIENT, BOSH_CLIENT_SECRET, and BOSH_CA_CERT
+##### B. set ENV vars with ops man api query ops manager #####
+# bosh_commandline_credentials -- this sets: BOSH_ENVIRONMENT, BOSH_CLIENT, BOSH_CLIENT_SECRET, and BOSH_CA_CERT
 export $(curl -ks "https://${OPSMAN_TARGET}/api/v0/deployed/director/credentials/bosh_commandline_credentials" -X GET -H "Authorization: Bearer ${TMP_UAAC_TOKEN}" | jq -r '.credential' | sed 's/ bosh //')
 
 
@@ -33,7 +36,8 @@ export $(curl -ks "https://${OPSMAN_TARGET}/api/v0/deployed/director/credentials
 # 1. list deployments and look for pas:
 CF_GUID=$(curl -ks "https://${OPSMAN_TARGET}/api/v0/deployed/products" -X GET -H "Authorization: Bearer ${TMP_UAAC_TOKEN}"  | jq -r '.[] | select(.type == "cf") | .installation_name')
 
-# 2. get the specific cred you need from pas:
+# 2. set Credhub ENV vars with ops man api query
+# .uaa.credhub_admin_client_client_credentials -- this sets: CREDHUB_CLIENT and CREDHUB_SECRET
 export CREDHUB_CLIENT=$(curl -ks "https://${OPSMAN_TARGET}/api/v0/deployed/products/${CF_GUID}/credentials/.uaa.credhub_admin_client_client_credentials" -X GET -H "Authorization: Bearer ${TMP_UAAC_TOKEN}" | jq -r '.credential.value.identity')
 export CREDHUB_SECRET=$(curl -ks "https://${OPSMAN_TARGET}/api/v0/deployed/products/${CF_GUID}/credentials/.uaa.credhub_admin_client_client_credentials" -X GET -H "Authorization: Bearer ${TMP_UAAC_TOKEN}" | jq -r '.credential.value.password')
 
