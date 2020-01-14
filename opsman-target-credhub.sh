@@ -8,7 +8,8 @@ export OPSMAN_TARGET=localhost
 export OPSMAN_ADMIN=opsman_admin
 
 # get the password for the opsman's admin user (admin on control plane; opsman_admin everywhere else) from user input
-echo "Please enter the password for the Ops Manager's admin user (from LastPass): "
+echo "Please enter the password for the Ops Manager's admin user."
+echo "This is the one you would use to log into the OM web UI, get it from LastPass): "
 read OPSMAN_PASSWORD
 
 if [ $OPSMAN_PASSWORD == "" ]; then
@@ -28,7 +29,8 @@ IFS=': ' && read -a TMP_UAAC_TOKEN <<< "$(uaac context ${OPSMAN_ADMIN} | grep ac
 
 
 ##### B. set ENV vars with ops man api query ops manager #####
-# bosh_commandline_credentials -- this sets: BOSH_ENVIRONMENT, BOSH_CLIENT, BOSH_CLIENT_SECRET, and BOSH_CA_CERT
+# bosh_commandline_credentials
+# This sets: BOSH_ENVIRONMENT, BOSH_CLIENT, BOSH_CLIENT_SECRET, and BOSH_CA_CERT
 export $(curl -ks "https://${OPSMAN_TARGET}/api/v0/deployed/director/credentials/bosh_commandline_credentials" -X GET -H "Authorization: Bearer ${TMP_UAAC_TOKEN}" | jq -r '.credential' | sed 's/ bosh //')
 
 
@@ -63,7 +65,4 @@ if ! grep -q "credhub.service.cf.internal" /etc/hosts || ! grep -q "uaa.service.
   printf "This script won't work without that. Go ahead and take care of it (sudo -i; vim /etc/hosts); I'll be here waiting for you when you get back.\n\n"
   return 1;
 fi
-
-
-
 
