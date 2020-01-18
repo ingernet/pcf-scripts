@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # A script that allows you to either access the Control Plane's built-in Credhub, 
-# or the stanadalone Credhub instance used by Concourse.
+# or the standalone Credhub instance used by Concourse.
 #
-# DO NOT RUN THIS, JUST SOURCE THIS. LIKE THIS. `source ./target-concourse-credhub.sh [controlplane|concourse]`
+# DO NOT RUN THIS, JUST SOURCE THIS. LIKE THIS. `source ./target-credhub.sh [controlplane|concourse]`
 
 ## SET UP
 OPSMAN_KEY="opsman-ssl-private-key-sample.pem"
