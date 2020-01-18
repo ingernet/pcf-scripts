@@ -6,9 +6,9 @@
 # DO NOT RUN THIS, JUST SOURCE THIS. LIKE THIS. `source ./target-concourse-credhub.sh [controlplane|concourse]`
 
 ## SET UP
-OPSMAN_KEY="<PATH-TO-CONTROLPLANE-OPS-MANAGER-PRIVATE-KEY>"
+OPSMAN_KEY="opsman-ssl-private-key-sample.pem"
 CP_TF="<PATH-TO-CONTROLPLANE-TFSTATE-FILE>"
-CP_ENV="<PATH-TO-CONTROLPLANE-ENV.YML-FILE>"
+CP_ENV="env-sample.yml"
 
 
 ## THE MEAT
@@ -61,7 +61,7 @@ elif [[ ${1} == "concourse" ]]; then
 	# echo "success! ${1}"
 
 	CP_OPSMAN_IP=$(terraform output -state ${CP_TF} ops_manager_public_ip)
-	eval "$(om --target $CP_OPSMAN_IP --env env-cp.yml bosh-env -i ./keys/controlplane_opsman_key.pem)"
+	eval "$(om --target $CP_OPSMAN_IP --env env-cp.yml bosh-env -i ${OPSMAN_KEY})"
     LB_DNS=$(jq -r '.modules[].resources["aws_lb.control_plane"].primary.attributes? | select(.dns_name != null)| .dns_name' ${CP_TF})
 	CONCOURSE_URL="https://${LB_DNS}"
 	if [ -z "$CONCOURSE_URL" ]; then
