@@ -2,7 +2,6 @@
 
 # TODO check for dependencies - jq, uaac, bosh
 # TODO mayyyybe check for /etc/hosts earlier?
-# TODO add credhub login
 
 export OPSMAN_TARGET=localhost
 export OPSMAN_ADMIN=opsman_admin
@@ -27,10 +26,6 @@ set -f; IFS=': ';
 set -- $TMP_CONTEXT;
 TMP_UAAC_TOKEN=$2;
 set +f; unset IFS;
-# IFS=': ' && read -a TMP_UAAC_TOKEN <<< "$(uaac context ${OPSMAN_ADMIN} | grep access_token)"
-# export TMP_UAAC_TOKEN="<contents of access_token field>" 
-#    ^ think i got this cracked above, but keeping this here as a reminder of the manual step 
-#       we used to have to do because for some reason cf-uaac authors chose not to output in json
 
 
 ##### B. set ENV vars with ops man api query ops manager #####
@@ -73,4 +68,4 @@ fi
 
 credhub api -s credhub.service.cf.internal:8844 --ca-cert $BOSH_CA_CERT
 
-credhub login
+credhub login && printf "\nLogged into the PAS Credhub instance on localhost.\n"
