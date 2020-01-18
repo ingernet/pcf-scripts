@@ -18,11 +18,16 @@ fi
 
 ##### A. Authenticate on Ops Manager ####
 # 1. get token:
-uaac target https://${OPSMAN_TARGET}/uaa --skip ssl-validation
+uaac target https://${OPSMAN_TARGET}/uaa --skip-ssl-validation
 uaac token owner get opsman ${OPSMAN_ADMIN} -s "" -p ${OPSMAN_PASSWORD}
 
 # 2. get the UAA token from ops Manager 
-IFS=': ' && read -a TMP_UAAC_TOKEN <<< "$(uaac context ${OPSMAN_ADMIN} | grep access_token)"
+TMP_CONTEXT="$(uaac context ${OPSMAN_ADMIN} | grep access_token)"
+set -f; IFS=': ';
+set -- $TMP_CONTEXT;
+TMP_UAAC_TOKEN=$2;
+set +f; unset IFS;
+# IFS=': ' && read -a TMP_UAAC_TOKEN <<< "$(uaac context ${OPSMAN_ADMIN} | grep access_token)"
 # export TMP_UAAC_TOKEN="<contents of access_token field>" 
 #    ^ think i got this cracked above, but keeping this here as a reminder of the manual step 
 #       we used to have to do because for some reason cf-uaac authors chose not to output in json
@@ -66,3 +71,6 @@ if ! grep -q "credhub.service.cf.internal" /etc/hosts || ! grep -q "uaa.service.
   return 1;
 fi
 
+credhub api -s credhub.service.cf.internal:8844 --ca-cert $BOSH_CA_CERT
+
+credhub login
